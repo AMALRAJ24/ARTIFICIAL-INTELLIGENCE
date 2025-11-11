@@ -1,0 +1,58 @@
+def solve_n_queens(n=8):
+    def is_safe(board, row, col):
+        # Check column
+        for i in range(row):
+            if board[i] == col:
+                return False
+        
+        # Check diagonal (top-left to bottom-right)
+        for i in range(row):
+            if abs(board[i] - col) == abs(i - row):
+                return False
+        
+        return True
+    
+    def place_queens(board, row):
+        if row == n:
+            solutions.append(board[:])
+            return
+        
+        for col in range(n):
+            if is_safe(board, row, col):
+                board[row] = col
+                place_queens(board, row + 1)
+                board[row] = -1  # backtrack
+    
+    solutions = []
+    board = [-1] * n
+    place_queens(board, 0)
+    return solutions
+
+def print_board(board):
+    n = len(board)
+    for row in range(n):
+        line = ""
+        for col in range(n):
+            if board[row] == col:
+                line += "Q "
+            else:
+                line += ". "
+        print(line)
+    print()
+
+# Solve the 8 Queens problem
+print("Solving 8 Queens Problem...\n")
+solutions = solve_n_queens(8)
+
+print(f"Total solutions found: {len(solutions)}\n")
+
+# Display first 4 solutions
+print("First 4 solutions:")
+for i, solution in enumerate(solutions[:4], 1):
+    print(f"Solution {i}:")
+    print_board(solution)
+
+# Show solution representation
+print("Solution representation (column position for each row):")
+for i, solution in enumerate(solutions[:4], 1):
+    print(f"Solution {i}: {solution}")
