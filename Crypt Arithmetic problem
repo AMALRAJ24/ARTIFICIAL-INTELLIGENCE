@@ -1,0 +1,111 @@
+from itertools import permutations
+
+def solve_cryptarithmetic(word1, word2, result):
+    """
+    Solve cryptarithmetic puzzles like SEND + MORE = MONEY
+    """
+    
+    # Get all unique letters
+    letters = set(word1 + word2 + result)
+    
+    if len(letters) > 10:
+        print("Too many unique letters! Maximum is 10.")
+        return None
+    
+    # Letters that cannot be zero (first letters of words)
+    non_zero = set()
+    if word1:
+        non_zero.add(word1[0])
+    if word2:
+        non_zero.add(word2[0])
+    if result:
+        non_zero.add(result[0])
+    
+    letters_list = list(letters)
+    
+    def word_to_number(word, mapping):
+        """Convert a word to number using the letter-digit mapping"""
+        number = 0
+        for char in word:
+            number = number * 10 + mapping[char]
+        return number
+    
+    # Try all permutations of digits 0-9 for the letters
+    for perm in permutations(range(10), len(letters_list)):
+        mapping = dict(zip(letters_list, perm))
+        
+        # Check if any leading letter is mapped to 0
+        if any(mapping[letter] == 0 for letter in non_zero):
+            continue
+        
+        # Convert words to numbers
+        num1 = word_to_number(word1, mapping)
+        num2 = word_to_number(word2, mapping)
+        num_result = word_to_number(result, mapping)
+        
+        # Check if the equation holds
+        if num1 + num2 == num_result:
+            return mapping, num1, num2, num_result
+    
+    return None
+
+def print_solution(word1, word2, result, solution):
+    """Print the solution in a nice format"""
+    
+    print(f"\nCryptarithmetic Problem: {word1} + {word2} = {result}")
+    print("=" * 60)
+    
+    if solution is None:
+        print("No solution found!")
+        return
+    
+    mapping, num1, num2, num_result = solution
+    
+    print("\nSolution found!")
+    print("\nLetter to Digit Mapping:")
+    for letter in sorted(mapping.keys()):
+        print(f"  {letter} = {mapping[letter]}")
+    
+    print(f"\nVerification:")
+    print(f"  {word1:>10} = {num1:>10}")
+    print(f"  {word2:>10} = {num2:>10}")
+    print(f"  {'-' * 10}   {'-' * 10}")
+    print(f"  {result:>10} = {num_result:>10}")
+    
+    print(f"\n  {num1} + {num2} = {num_result} ✓")
+
+# Example 1: SEND + MORE = MONEY (Classic)
+print("EXAMPLE 1: Classic SEND + MORE = MONEY")
+solution = solve_cryptarithmetic("SEND", "MORE", "MONEY")
+print_solution("SEND", "MORE", "MONEY", solution)
+
+print("\n" + "=" * 60)
+
+# Example 2: TWO + TWO = FOUR
+print("\nEXAMPLE 2: TWO + TWO = FOUR")
+solution = solve_cryptarithmetic("TWO", "TWO", "FOUR")
+print_solution("TWO", "TWO", "FOUR", solution)
+
+print("\n" + "=" * 60)
+
+# Example 3: BASE + BALL = GAMES
+print("\nEXAMPLE 3: BASE + BALL = GAMES")
+solution = solve_cryptarithmetic("BASE", "BALL", "GAMES")
+print_solution("BASE", "BALL", "GAMES", solution)
+
+print("\n" + "=" * 60)
+
+# Example 4: EAT + THAT = APPLE
+print("\nEXAMPLE 4: EAT + THAT = APPLE")
+solution = solve_cryptarithmetic("EAT", "THAT", "APPLE")
+print_solution("EAT", "THAT", "APPLE", solution)
+
+print("\n" + "=" * 60)
+
+# You can add your own puzzle here:
+print("\nCUSTOM PUZZLE:")
+custom_word1 = "CAT"
+custom_word2 = "DOG"
+custom_result = "PETS"
+solution = solve_cryptarithmetic(custom_word1, custom_word2, custom_result)
+print_solution(custom_word1, custom_word2, custom_result, solution)
