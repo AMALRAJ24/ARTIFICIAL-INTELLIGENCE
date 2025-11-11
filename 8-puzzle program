@@ -1,0 +1,75 @@
+from heapq import heappush, heappop
+
+def solve_8_puzzle(start_state):
+    goal_state = [1, 2, 3, 4, 5, 6, 7, 8, 0]
+    
+    def manhattan_distance(state):
+        distance = 0
+        for i, value in enumerate(state):
+            if value != 0:
+                goal_pos = goal_state.index(value)
+                current_row, current_col = i // 3, i % 3
+                goal_row, goal_col = goal_pos // 3, goal_pos % 3
+                distance += abs(current_row - goal_row) + abs(current_col - goal_col)
+        return distance
+    
+    def get_neighbors(state):
+        neighbors = []
+        zero_index = state.index(0)
+        row, col = zero_index // 3, zero_index % 3
+        
+        # Possible moves: up, down, left, right
+        moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        
+        for dr, dc in moves:
+            new_row, new_col = row + dr, col + dc
+            if 0 <= new_row < 3 and 0 <= new_col < 3:
+                new_index = new_row * 3 + new_col
+                new_state = state[:]
+                new_state[zero_index], new_state[new_index] = new_state[new_index], new_state[zero_index]
+                neighbors.append(new_state)
+        
+        return neighbors
+    
+    # A* search
+    pq = [(manhattan_distance(start_state), 0, start_state, [start_state])]
+    visited = set()
+    
+    while pq:
+        _, moves, current_state, path = heappop(pq)
+        
+        if current_state == goal_state:
+            return path
+        
+        state_tuple = tuple(current_state)
+        if state_tuple in visited:
+            continue
+        visited.add(state_tuple)
+        
+        for neighbor in get_neighbors(current_state):
+            if tuple(neighbor) not in visited:
+                new_moves = moves + 1
+                priority = new_moves + manhattan_distance(neighbor)
+                heappush(pq, (priority, new_moves, neighbor, path + [neighbor]))
+    
+    return None
+
+def print_puzzle(state):
+    for i in range(0, 9, 3):
+        print(state[i:i+3])
+    print()
+
+# Test the solver
+start = [1, 2, 3, 4, 5, 6, 0, 7, 8]
+print("Starting puzzle:")
+print_puzzle(start)
+
+solution = solve_8_puzzle(start)
+
+if solution:
+    print(f"Solution found in {len(solution) - 1} moves:")
+    for step, state in enumerate(solution):
+        print(f"Step {step}:")
+        print_puzzle(state)
+else:
+    print("No solution found!")
